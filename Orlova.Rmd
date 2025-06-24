@@ -14,6 +14,7 @@ library(quanteda)
 library(quanteda.textstats)
 library(quanteda.textplots)
 library(tidyverse)
+library(udpipe)
 ```
 
 
@@ -98,6 +99,25 @@ balanced_df <- df %>%
 
 table(balanced_df$keyword, balanced_df$sense_rule)
 ```
+# Preprocessing
+
+```{r}
+ud_model <- udpipe_download_model(language = "japanese")
+
+model <- udpipe_load_model(ud_model$file_model)
+
+process_text <- function(text, model) {
+  anno <- udpipe_annotate(model, x = text)
+  anno_df <- as.data.frame(anno)
+  tokens <- anno_df$lemma[anno_df$upos %in% c("NOUN", "VERB")]
+  paste(tokens, collapse = " ")
+}
+
+df$cleaned <- sapply(df$context, process_text, model = model)
+
+```
+
+
 # Observations
 
 Let's take a look at the diagrams which can show the tendencies of usage of these verbs to make some empirical conclusions. Our distributions are:
@@ -253,7 +273,7 @@ Together, the results from both the t-test and chi-squared test provide convergi
 # Context analysis
 
 ```{r}
-corp <- corpus(df, text_field = "context")
+corp <- corpus(df$cleaned, text_field = "context")
 
 docvars(corp, "group") <- df$keyword  
 
@@ -292,9 +312,7 @@ df$sense_rule <- factor(df$sense_rule, levels = c("General", "Formal"))
 
 
 ```{r}
-library(quanteda)
-
-corp <- corpus(df, text_field = "context")
+corp <- corpus(df$cleaned, text_field = "context")
 
 toks <- tokens(corp, remove_punct = TRUE)
 
