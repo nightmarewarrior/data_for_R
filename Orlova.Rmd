@@ -129,10 +129,10 @@ summary_tbl <- balanced_df %>%
 ggplot(summary_tbl, aes(x = era, y = n, fill = keyword)) +
   geom_col(position = "dodge") +
   labs(
-    x    = "Эпоха",
-    y    = "Число контекстов",
-    fill = "Термин",
-    title= "Распределение контекстов 自害 и 自殺 по эпохам"
+    title = "Proportion of Formal and General contexts for 自殺, 自",
+    x = "Era",
+    y = "Proportion",
+    fill = "Word"
   ) +
   theme_minimal()
 ```
