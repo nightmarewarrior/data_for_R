@@ -1,96 +1,111 @@
-# Our case
-  
-  Our study investigates the diachronic shift in the usage of the two Japanese quasi-synonyms 自殺 (jisatsu, “to commit suicide”) and 自害 (jigai, “to commit suicide, often in a ritual or formal context”).
-  Representative examples
-In Natsume Sōseki’s Meiji-period short story we find:
-
-彼は病苦に耐えかねて自殺を遂げた。
-(He could no longer bear the suffering of his illness and committed suicide.)
-
-武士は名誉を守るために自害を決行した。
-(The samurai carried out suicide in order to preserve his honor.)
-
-In a Shōwa-era novella by Akutagawa Ryūnosuke:
-
-その若者は深い絶望の中で自殺を試み、
-(That young man attempted suicide in the depths of despair,)
-
-戦場の勇士は誇り高く自害した。
-(and the brave warrior on the battlefield proudly carried out suicide.)
-
-自殺 (jisatsu)
-自らの命を絶つこと。自分の意思で生命を終える行為。
-(To take one’s own life; an act of ending one’s life by one’s own volition.)
-転じて、自己否定的・絶望的行為全般を指す。
-(By extension, refers to any self-negating or despair-driven act.)
-
-自害 (jigai)
-自分に害（自ら命を絶つ）を及ぼすこと。特に武士の切腹など儀礼的・形式的自死を含む。
-(To inflict harm on oneself—i.e., to end one’s own life—especially including ritual or formal suicide such as a samurai’s seppuku.)
-自分を犠牲にして目的を果たす行為や強い決意を示す文脈で用いられる。
-(Used in contexts indicating an act of self-sacrifice to achieve an objective or to show strong resolve.)
-
-Explanation of term choice
-In Japanese, there is also 切腹 (seppuku)—the ritual disembowelment historically performed by samurai—as a counterpart to “suicide.” However, we chose 自害 (jigai) for our comparison with 自殺 (jisatsu) for several reasons:
-
-Broader semantic scope
-
-切腹 (seppuku) refers very specifically to the formal samurai practice of self-disembowelment, bound by historical and class-based ritual contexts.
-
-自害 (jigai), by contrast, appears not only in descriptions of ritual suicide but also in a wider range of literary and historical contexts—covering any self-inflicted death carried out with a sense of solemnity or duty, beyond strictly samurai circles.
-
-Diachronic prevalence
-
-In pre-Meiji and Meiji-period texts, 自害 is the dominant literary term for formal or honor-driven self-harm, whereas 切腹 is reserved almost exclusively for narratives involving samurai.
-
-From Taisho onward, 自害 continues to surface in modern fiction and non-fiction whenever an author wishes to evoke a formal or dignified self-sacrifice, while 切腹 remains tied to historical or military settings.
-
-Quasi-synonymic contrast
-
-Because our goal is to trace the gradual shift from any formalized self-harm (自害) to the more clinical or general term 自殺, 自害 provides the best “paired” counterpart: it shares the core sense of “self-caused death” yet occupies a distinct register and pragmatic function.
-
-Thus, by comparing 自殺 and 自害, we capture the evolution from a broad literary usage of formalized self-harm to the modern, neutral designation of suicide—something that 切腹 alone could not illustrate.
-
-
-
-# Our data
-
-  We drew a balanced corpus of 500 texts from Aozora Bunko, stratified across the Meiji, Taisho, Showa, Heisei and Reiwa eras: 250 texts containing 自害 and 250 texts containing 自殺. All texts were preprocessed to remove Aozora editorial markers, ruby-notation explanations, and introductory metadata, then flattened into a single line to facilitate context extraction.
-  (разметка - ворк ин прогресс, по задумке - ручная разметка + обучить на ручной разметке TF-IDF + LogisticRegression)
-  
-  
-# Hypothesis
-(изначальные гипотезы - диахронические. Можно ли их и оставить? Будет ли этого достаточно для исследования?)
-**The null hypothesis:** The average publication year for contexts containing 自殺 (jisatsu) is equal to the average publication year for those containing 自害 (jigai).  
-**The alternative hypothesis:** The average publication years for the two groups are different.
+---
+title: "Orlova_project"
+output: html_document
+date: "2025-06-23"
+---
 
 ```{r include = FALSE}
 library(tidyverse)
 library(TTR)
 library(tseries)
 library(forecast)
+library(Hmisc)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
+library(tidyverse)
 ```
 
-(вторые гипотезы на случай, если этого окажется мало, а его будто бы кажется)
+
+# Our case
+  
+  Our study investigates the diachronic shift in the usage of the two Japanese quasi-synonyms 自殺 (jisatsu, “to commit suicide”) and 自害 (jigai, “to commit suicide, to hurt oneself”).
+  
+> 自殺 (jisatsu)
+自らの命を絶つこと。自分の意思で生命を終える行為。
+(To take one’s own life; an act of ending one’s life by one’s own volition.)
+転じて、自己否定的・絶望的行為全般を指す。
+(By extension, refers to any self-negating or despair-driven act.)
+
+> 自害 (jigai)
+自分に害（自ら命を絶つ）を及ぼすこと。特に武士の切腹など儀礼的・形式的自死を含む。
+(To inflict harm on oneself—i.e., to end one’s own life—especially including ritual or formal suicide such as a samurai’s seppuku.)
+自分を犠牲にして目的を果たす行為や強い決意を示す文脈で用いられる。
+(Used in contexts indicating an act of self-sacrifice to achieve an objective or to show strong resolve.)
+  
+  Representative examples
+In Natsume Sōseki’s Meiji-period short story we find:
+
+> 彼は病苦に耐えかねて自殺を遂げた。
+(He could no longer bear the suffering of his illness and committed suicide.)
+
+> 武士は名誉を守るために自害を決行した。
+(The samurai carried out suicide in order to preserve his honor.)
+
+In a Shōwa-era novella by Akutagawa Ryūnosuke:
+
+> その若者は深い絶望の中で自殺を試み、
+(That young man attempted suicide in the depths of despair,)
+
+> 戦場の勇士は誇り高く自害した。
+(and the brave warrior on the battlefield proudly carried out suicide.)
+
+  Explanation of term choice
+  In Japanese, there is also 切腹 (seppuku)—the ritual disembowelment historically performed by samurai—as a counterpart to “suicide.” However, we chose 自害 (jigai) for our comparison with 自殺 (jisatsu) for several reasons:
+
+  Broader semantic scope
+
+  切腹 (seppuku) refers very specifically to the formal samurai practice of self-disembowelment, bound by historical and class-based ritual contexts.
+
+  自害 (jigai), by contrast, appears not only in descriptions of ritual suicide but also in a wider range of literary and historical contexts—covering any self-inflicted death carried out with a sense of solemnity or duty, beyond strictly samurai circles.
+
+  Diachronic prevalence
+
+  In pre-Meiji and Meiji-period texts, 自害 is the dominant literary term for formal or honor-driven self-harm, whereas 切腹 is reserved almost exclusively for narratives involving samurai.
+
+  From Taisho onward, 自害 continues to surface in modern fiction and non-fiction whenever an author wishes to evoke a formal or dignified self-sacrifice, while 切腹 remains tied to historical or military settings.
+
+  Quasi-synonymic contrast
+
+  Because our goal is to trace the gradual shift from any formalized self-harm (自害) to the more clinical or general term 自殺, 自害 provides the best “paired” counterpart: it shares the core sense of “self-caused death” yet occupies a distinct register and pragmatic function.
+
+  Thus, by comparing 自殺 and 自害, we capture the evolution from a broad literary usage of formalized self-harm to the modern, neutral designation of suicide—something that 切腹 alone could not illustrate.
+
+
+# Our data
+
+  We drew a balanced corpus of 500 texts from Aozora Bunko, stratified across the Meiji, Taisho, Showa, Heisei and Reiwa eras: 250 texts containing 自害 and 250 texts containing 自殺. All texts were preprocessed to remove Aozora editorial markers, ruby-notation explanations, and introductory metadata, then flattened into a single line to facilitate context extraction.
+  
+  
+# Hypothesis
+
 **The null hypothesis:** The proportion of ritual contexts is the same in the 自殺 group and the 自害 group.
-**The alternative hypothesis:**The proportion of ritual contexts is higher for 自害 than for 自殺.
-# Data
 
+**The alternative hypothesis:**The proportion of ritual contexts is higher for 自害 than for 自殺.
+
+# Data
 ```{r}
-csv_url <- 'https://raw.githubusercontent.com/nightmarewarrior/data_for_R/refs/heads/main/dataset_context_with_rule.csv'
-df <- read_csv(csv_url)
-df
+df <- read.csv('https://raw.githubusercontent.com/nightmarewarrior/data_for_R/refs/heads/main/cut_and_balanced.csv')
+table(df$keyword, df$sense_rule)
+count_by_keyword <- df %>%
+  count(keyword, sense_rule)
+print(count_by_keyword)
+
+balanced_df <- df %>%
+  group_by(keyword, sense_rule) %>%
+  slice_sample(n = min(table(df$keyword, df$sense_rule))) %>%
+  ungroup()
+
+table(balanced_df$keyword, balanced_df$sense_rule)
 ```
+# Observations
 
 Let's take a look at the diagrams which can show the tendencies of usage of these verbs to make some empirical conclusions. Our distributions are:
 
+
 ```{r}
-summary_tbl <- df %>%
-  count(era, keyword) %>%
-  arrange(era, keyword)
-print(summary_tbl)
-```
-```{r}
+summary_tbl <- balanced_df %>%
+  count(era, keyword)
 ggplot(summary_tbl, aes(x = era, y = n, fill = keyword)) +
   geom_col(position = "dodge") +
   labs(
@@ -101,89 +116,176 @@ ggplot(summary_tbl, aes(x = era, y = n, fill = keyword)) +
   ) +
   theme_minimal()
 ```
-(перекос ожидаем - датасет требует балансировки, поскольку большинство оцифрованной литературы - эпохи Мэйдзи, и к тому же они длиннее. Возможно стоит сделать минидатасет в рамках этой эпохи?)
+Because the vast majority of examples come from the Meiji era, the comparison between 自害 and 自殺 is performed within a single historical context, removing the diachronic variable and focusing solely on semantic differentiation.
 
 
 ```{r}
-library(Hmisc)
-summary_df <- df %>%
+df_meiji <- df %>% filter(era == "Meiji")
+```
+
+```{r}
+table_meiji <- table(df_meiji$keyword, df_meiji$sense_rule)
+print(table_meiji)
+```
+
+```{r}
+df_meiji %>%
+  count(keyword, sense_rule) %>%
   group_by(keyword) %>%
-  summarise(
-    mean_year = mean(publication_year),
-    ci_low    = t.test(publication_year)$conf.int[1],
-    ci_high   = t.test(publication_year)$conf.int[2]
-  )
-ggplot(summary_df, aes(x = keyword, y = mean_year, fill = keyword)) +
-  geom_col() +
-  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), width = 0.2) +
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(x = keyword, y = prop, fill = sense_rule)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Proportion of Formal and General contexts in Meiji era",
+    x = "Keyword",
+    y = "Proportion",
+    fill = "Context Type"
+  ) +
   theme_minimal()
 ```
+自害:
 
+Over 65% of occurrences are labeled as Formal.
 
+This suggests a strong association with ritualized or culturally codified suicide, often related to honor, duty, or traditional values.
 
+自殺:
+
+Around 55% are used in Formal contexts, but a higher proportion compared to 自害 are labeled as General.
+
+This supports its interpretation as a more modern, general-purpose term for suicide, not necessarily tied to ritual or formalized death.
 ```{r}
-merged_distr_sep <- rbind(mignut_init_distr, podmignut_init_distr)
-
-merged_distr_sep %>%
-  ggplot(aes(Publ_year, dist_per))+
-  geom_smooth()+
-  facet_wrap(~category)
+author_summary <- df %>%
+  group_by(author, keyword, sense_rule) %>%
+  summarise(count = n(), .groups = "drop")
 ```
 
-Taking first look on these diagrams we can observe that our hypothesis actually tends to be true. 
+```{r}
+pivot_table <- author_summary %>%
+  pivot_wider(names_from = sense_rule, values_from = count, values_fill = 0)
 
-But these are just some emprircal conclusions. Next thing that we did is applying some statistical tests to our data
+print(pivot_table)
+```
+
+To further explore whether the usage of the term 自殺 (“suicide”) differs across authors in terms of its contextual interpretation, we examined the distribution of context types ("Formal" vs. "General") per author. This is crucial to ensure that our overall findings are not disproportionately shaped by a small number of prolific writers or specific stylistic tendencies.
+```{r}
+pivot_long <- pivot_table %>%
+  pivot_longer(cols = c("Formal", "General"), names_to = "sense_rule", values_to = "count")
+```
+
+```{r}
+pivot_long_jisatsu <- pivot_long %>% filter(keyword == "自殺")
+
+ggplot(pivot_long_jisatsu, aes(x = author, y = count, fill = sense_rule)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Contexts per Author for 自殺",
+    x = "Author",
+    y = "Count",
+    fill = "Context Type"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1, size = 7),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+```
+
+The graph shows noticeable variation across authors. Some authors, such as those on the far right, use 自殺 almost equally in both formal and general contexts, while others show a skew toward one type. For instance, one author in the middle exhibits a preference for general usage. This variability suggests that individual authorial style may influence how the term is framed, underscoring the importance of controlling for author bias in our quantitative analysis.
+
+```{r}
+pivot_long_jigai <- pivot_long %>% filter(keyword == "自害")
+
+ggplot(pivot_long_jigai, aes(x = author, y = count, fill = sense_rule)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Contexts per Author for 自害",
+    x = "Author",
+    y = "Count",
+    fill = "Context Type"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1, size = 7),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+```
+The distribution is highly skewed: a small number of authors dominate the usage of 自害, with one author (on the far right) contributing nearly 100 occurrences. While most authors show only a handful of instances, a few—likely writers of historical fiction or samurai narratives—use the term more frequently and often in ritualized (“Formal”) contexts.
+
+This concentration highlights the possibility that the perception of 自害 as a ritual act is driven disproportionately by a limited number of authors, which could bias overall frequency-based findings.
+
+This distribution suggests that authorial style and genre play a key role in the contextualization of 自害.
+
+Results indicate a need to control for dominant authors in statistical analyses.This justifies further analysis, such as:
+
+* Investigating correlations between genre and context type
+
+* Testing whether certain authors (e.g., with military, psychological, or philosophical backgrounds) favor ritualized or non-ritualized framing
+
+* Considering mixed-effects models where "author" is treated as a random effect
+
+Taking first look on these diagrams we can observe that our hypothesis mostly tends to be true. 
+
+But these are just some empircal conclusions. Next thing that we did is applying some statistical tests to our data
 
 
 # Applying statistical methods
 
 
 ```{r}
-t.test(publication_year ~ keyword,
-       data = df,
-       var.equal = TRUE)
+df2 <- df %>%
+  mutate(is_formal = ifelse(sense_rule == "Formal", 1, 0))
+
+t.test(is_formal ~ keyword, data = df2, var.equal = TRUE)
 ```
-The obtained p-value is enough to proove our hipothesis, but let's think about our data in another way. Now let's talk about our values from point of view of the time series.
-
-# Time series
-
-
+Based on the results of the two-sample t-test (t = 2.19, p = 0.029), we reject the null hypothesis and conclude that there is a statistically significant difference between the two groups. The term 自害 appears in ritual (Formal) contexts more frequently than 自殺, supporting our hypothesis.
 
 ```{r}
-library(dplyr)
-yearly_counts <- df %>%
-  mutate(year = as.integer(substr(pub_date, 1, 4))) %>%
-  count(year, keyword) %>%
-  pivot_wider(names_from = keyword, values_from = n, values_fill = 0)
-
-
+chisq_test <- chisq.test(table_meiji)
+print(chisq_test)
 ```
+In addition to the t-test, we conducted a Pearson's Chi-squared test with Yates' continuity correction to further evaluate the relationship between the term used (自殺 or 自害) and the type of context (Formal or General). The test yielded a statistically significant result (χ² = 4.95, p = 0.026), indicating that the distribution of context types is not independent of the keyword.
 
+This supports our alternative hypothesis that the term 自害 is more frequently associated with ritual (Formal) contexts compared to 自殺. The result strengthens the evidence for a semantic and functional distinction between the two terms, even when they both express the concept of self-inflicted death.
 
+Together, the results from both the t-test and chi-squared test provide converging support for the idea that 自害 is used in more culturally or socially formalized contexts, possibly reflecting its historical association with ritual suicide among samurai or other honor-bound figures.
 
+# Context analysis
 
 ```{r}
-library(ggplot2)
-ggplot(yearly_counts, aes(x = year)) +
-  geom_line(aes(y = jisatsu, color = "jisatsu")) +
-  geom_line(aes(y = jigai,  color = "jigai")) +
-  labs(x="Year", y="Count of contexts", color="Term") +
-  theme_minimal()
+corp <- corpus(df, text_field = "context")
 
+docvars(corp, "group") <- df$keyword  
+
+tokens_all <- tokens(corp, remove_punct = TRUE, remove_numbers = TRUE)
+tokens_all <- tokens_tolower(tokens_all)
+dfm_all <- dfm(tokens_all)
+
+dfm_grouped <- dfm_group(dfm_all, groups = docvars(dfm_all, "group"))
 ```
-
-
 
 ```{r}
-library(changepoint)
-cp_jis <- cpt.meanvar(yearly_counts$jisatsu, method="PELT")
-cp_jig <- cpt.meanvar(yearly_counts$jigai,  method="PELT")
-plot(cp_jis); plot(cp_jig)
+keyness <- textstat_keyness(dfm_grouped, target = "自害")
+textplot_keyness(keyness,  show_reference = TRUE,
+  show_legend = TRUE,
+  n = 20L,
+  min_count = 2L,
+  margin = 0.55,
+  color = c("darkblue", "gray"),
+  labelcolor = "gray30",
+  labelsize = 3,
+  font = NULL
+)
+
+
+
 ```
+<br><br><br>
+The results reinforce the hypothesis that 自害 is more closely associated with ritual and formal suicide, while 自殺 appears more frequently in general or modern suicide contexts.
 
-
+Words like 「死」(death), 「苦」(suffering), 「病」(illness), and 「他殺」(homicide) suggest a more clinical or general usage, often linked to personal despair, illness, or crime-related contexts.
 
 
 # Results
 
-As a result, we have received confirmation of our hypothesis, however, the database for an ideal statistical analysis is not enough, but for existing occurrences we have observed some significant correlation.
+As a result, we have received confirmation of our hypothesis, however, the database for an ideal statistical analysis is not balanced enough, but for existing occurrences we have observed some significant correlation.
