@@ -276,16 +276,89 @@ textplot_keyness(keyness,  show_reference = TRUE,
   labelsize = 3,
   font = NULL
 )
-
-
-
 ```
 <br><br><br>
 The results reinforce the hypothesis that 自害 is more closely associated with ritual and formal suicide, while 自殺 appears more frequently in general or modern suicide contexts.
 
 Words like 「死」(death), 「苦」(suffering), 「病」(illness), and 「他殺」(homicide) suggest a more clinical or general usage, often linked to personal despair, illness, or crime-related contexts.
 
+# Model
+
+Since we have a large number of textual predictors (words in context) and a binary target variable (Formal vs. General), we apply binary logistic regression. This model allows us to evaluate how the presence of specific words affects the probability of a context being classified as Formal rather than General.
+
+```{r}
+df$sense_rule <- factor(df$sense_rule, levels = c("General", "Formal"))
+```
+
+
+```{r}
+library(quanteda)
+
+corp <- corpus(df, text_field = "context")
+
+toks <- tokens(corp, remove_punct = TRUE)
+
+toks <- tokens_remove(toks, c("自殺", "自害"))
+
+dfm_all <- dfm(toks)
+
+dfm_all <- dfm_tolower(dfm_all)
+dfm_all <- dfm_trim(dfm_all, min_termfreq = 5)
+
+X <- convert(dfm_all, to = "data.frame")
+X$sense_rule <- df$sense_rule
+
+```
+
+
+```{r}
+library(glmnet)
+
+X_mat <- as.matrix(dfm_all)
+y <- as.factor(df$sense_rule)
+
+model <- cv.glmnet(X_mat, y, family = "binomial", alpha = 0)
+summary(model)
+```
+
+```{r}
+coefs <- coef(model, s = "lambda.min")
+coefs_df <- as.data.frame(as.matrix(coefs))
+coefs_df$feature <- rownames(coefs_df)
+colnames(coefs_df)[1] <- "coef"
+rownames(coefs_df) <- NULL
+
+top_terms <- coefs_df %>%
+  filter(feature != "(Intercept)") %>%
+  arrange(desc(abs(coef))) %>%
+  slice_head(n = 20)
+```
+
+```{r}
+ggplot(top_terms, aes(x = reorder(feature, coef), y = coef)) +
+  geom_col(fill = "darkorange") +
+  coord_flip() +
+  labs(title = "Top Predictive Terms (Ridge Regression)",
+       x = "Term", y = "Coefficient (log-odds)") +
+  theme_minimal()
+```
+
+
+The bar plot visualizes the top 20 features (words) with the highest absolute coefficients from a ridge logistic regression model used to predict whether a context belongs to the term 自害 or 自殺.
+
+The model highlights a clear lexical distinction:
+自害 is more often used in traditional or honor-based contexts, while 自殺 appears in modern, medicalized, or emotionally complex narratives (for example, with words like けれども (however), 癲癇 (epilepsy), and 不思議 (strange) )
 
 # Results
 
 As a result, we have received confirmation of our hypothesis, however, the database for an ideal statistical analysis is not balanced enough, but for existing occurrences we have observed some significant correlation.
+
+# Limitations of the Analysis
+
+* The corpus is not representative of all historical Japanese texts, especially given the dominance of Meiji-era data.
+* Some authors (e.g., Akutagawa, Mori Ōgai) are heavily overrepresented, while others appear once or twice.
+
+# Future plans
+
+* Include data from other sources to have more era and author variability
+* Change the approach to data preprocessing, since  grammatical indicators (such as particles, auxiliary verbs, or common connectors) can obscure the influence of meaningful content words
